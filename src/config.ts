@@ -8,21 +8,16 @@ export const CHAIN = base;
 
 export const CONTRACT_ADDRESS: `0x${string}` = "0x";
 
-export const FRAME_METADATA = getFrameMetadata({
+export const HOME_PAGE_FRAME_METADATA = getFrameMetadata({
   buttons: [
     {
-      label: "Left",
-    },
-    {
-      label: "Right",
-    },
-    {
-      label: "Abstain",
-    },
-    {
-      label: "I'm Done",
+      label: "Vote",
+      action: "post",
     },
   ],
-  image: `${SITE_URL}/Example1.webp`,
-  post_url: `${SITE_URL}/api/vote`,
+  image: {
+    src: `${SITE_URL}/status/welcome.webp`,
+    aspectRatio: "1:1",
+  },
+  post_url: `${SITE_URL}/api/frame`,
 });

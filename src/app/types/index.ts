@@ -12,11 +12,9 @@ export enum VOTES {
 }
 
 export enum ResponseType {
-  // START,
   SUCCESS,
   // RECAST,
-  ALREADY_VOTED,
+  NEXT_PAIR,
   NO_ADDRESS,
   ERROR,
-  DONE,
 }
