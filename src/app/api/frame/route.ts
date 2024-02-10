@@ -2,7 +2,7 @@ import { ContractABI } from "@/app/abi/ContractABI";
 import { ResponseType } from "@/app/types";
 import { CHAIN, CONTRACT_ADDRESS, SITE_URL } from "@/config";
 // import { kv } from '@vercel/kv';
-import { getFrameHtmlResponse } from "@coinbase/onchainkit";
+import { getFrameHtmlResponse, getFrameMetadata } from "@coinbase/onchainkit";
 import { NextRequest, NextResponse } from "next/server";
 import {
   Address,
@@ -13,10 +13,9 @@ import {
 } from "viem";
 
 const NEYNAR_API_KEY = process.env.NEXT_PUBLIC_NEYNAR_API_KEY;
-const WALLET_PRIVATE_KEY = process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY as
-  | Hex
-  | undefined;
-// const HAS_KV = !!process.env.KV_URL;
+const NEXT_PUBLIC_PRIVATE_KEY = process.env
+  .NEXT_PUBLIC_NEXT_PUBLIC_PRIVATE_KEY as Hex | undefined;
+const HAS_KV = !!process.env.KV_URL;
 const transport = http(process.env.RPC_URL);
 const publicClient = createPublicClient({
   chain: CHAIN,
@@ -31,7 +30,8 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest): Promise<Response> {
   try {
-    if (!WALLET_PRIVATE_KEY) throw new Error("WALLET_PRIVATE_KEY is not set");
+    if (!NEXT_PUBLIC_PRIVATE_KEY)
+      throw new Error("NEXT_PUBLIC_PRIVATE_KEY is not set");
 
     const body: { trustedData?: { messageBytes?: string } } = await req.json();
 
@@ -93,27 +93,34 @@ export async function POST(req: NextRequest): Promise<Response> {
 }
 
 function getResponse(type: ResponseType) {
-  const FRAME = {
-    [ResponseType.START]: "",
+  const IMAGE = {
     [ResponseType.SUCCESS]: "status/success.png",
-    [ResponseType.RECAST]: "status/recast.png",
     [ResponseType.ALREADY_VOTED]: "status/already-voted.png",
     [ResponseType.NO_ADDRESS]: "status/no-address.png",
     [ResponseType.ERROR]: "status/error.png",
     [ResponseType.DONE]: "status/done.png",
   }[type];
   const shouldRetry =
-    type === ResponseType.ERROR || type === ResponseType.RECAST;
+    type === ResponseType.ERROR || type === ResponseType.NO_ADDRESS;
   if (!shouldRetry) {
     return new NextResponse(
       getFrameHtmlResponse({
         buttons: [
           {
-            label: `🌊 ${"Vote"} 🌊`,
+            label: "Left",
+          },
+          {
+            label: "Right",
+          },
+          {
+            label: "Abstain",
+          },
+          {
+            label: "I'm Done",
           },
         ],
-        image: `${SITE_URL}/opengraph-image.png`,
-        post_url: `${SITE_URL}/api/frame`,
+        image: `${SITE_URL}${IMAGE}`,
+        post_url: `${SITE_URL}/api/vote`,
       })
     );
   } else {
@@ -121,10 +128,10 @@ function getResponse(type: ResponseType) {
       getFrameHtmlResponse({
         buttons: [
           {
-            label: `🌊 ${"Try Again"} 🌊`,
+            label: `🫤 ${"Try Again"} 🫤`,
           },
         ],
-        image: `${SITE_URL}/try-again-image.png`,
+        image: `${SITE_URL}/status/try-again-image.webp`,
         post_url: `${SITE_URL}/api/frame`,
       })
     );

@@ -1,3 +1,4 @@
+import { ResponseType } from "@/app/types";
 import { CHAIN, SITE_URL } from "@/config";
 // import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from "next/server";
@@ -11,7 +12,7 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 
 const NEYNAR_API_KEY = process.env.NEXT_PUBLIC_NEYNAR_API_KEY;
-const WALLET_PRIVATE_KEY = process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY as
+const NEXT_PUBLIC_PRIVATE_KEY = process.env.NEXT_PUBLIC_PRIVATE_KEY as
   | Hex
   | undefined;
 // const HAS_KV = !!process.env.KV_URL;
@@ -32,7 +33,8 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest): Promise<Response> {
   try {
-    if (!WALLET_PRIVATE_KEY) throw new Error("WALLET_PRIVATE_KEY is not set");
+    if (!NEXT_PUBLIC_PRIVATE_KEY)
+      throw new Error("NEXT_PUBLIC_PRIVATE_KEY is not set");
 
     const body: { trustedData?: { messageBytes?: string } } = await req.json();
 
@@ -61,22 +63,22 @@ export async function POST(req: NextRequest): Promise<Response> {
       return getResponse(ResponseType.NO_ADDRESS);
     }
 
-     // Set up the tranaction
-     const { request } = await publicClient.simulateContract({
-      address: "0x",
-      abi: [],
-      functionName: "",
-      args: [],
-      account: privateKeyToAccount(WALLET_PRIVATE_KEY),
-    });
+    // Set up the tranaction to cast vote
+    // const { request } = await publicClient.simulateContract({
+    //   address: "0x",
+    //   abi: [],
+    //   functionName: "",
+    //   args: [],
+    //   account: privateKeyToAccount(NEXT_PUBLIC_PRIVATE_KEY),
+    // });
 
-    if (!request) {
-      throw new Error("Could not simulate contract");
-    }
+    // if (!request) {
+    //   throw new Error("Could not simulate contract");
+    // }
 
-    const hash = await walletClient.writeContract(request);
+    // const hash = await walletClient.writeContract(request);
 
-    console.log(`Transaction sent from ${address} with hash ${hash}`);
+    // console.log(`Transaction sent from ${address} with hash ${hash}`);
 
     // if (HAS_KV) {
     //   await kv.set(`tx:${address}`, hash);
@@ -89,24 +91,15 @@ export async function POST(req: NextRequest): Promise<Response> {
   }
 }
 
-enum ResponseType {
-  SUCCESS,
-  RECAST,
-  ALREADY_MINTED,
-  NO_ADDRESS,
-  ERROR,
-}
-
 function getResponse(type: ResponseType) {
   const IMAGE = {
     [ResponseType.SUCCESS]: "status/success.png",
-    [ResponseType.RECAST]: "status/recast.png",
-    [ResponseType.ALREADY_MINTED]: "status/already-minted.png",
+    [ResponseType.ALREADY_VOTED]: "status/already-voted.png",
     [ResponseType.NO_ADDRESS]: "status/no-address.png",
     [ResponseType.ERROR]: "status/error.png",
+    [ResponseType.DONE]: "status/done.png",
   }[type];
-  const shouldRetry =
-    type === ResponseType.ERROR || type === ResponseType.RECAST;
+  const shouldRetry = type === ResponseType.ERROR;
   return new NextResponse(`<!DOCTYPE html><html><head>
     <meta property="fc:frame" content="vNext" />
     <meta property="fc:frame:image" content="${SITE_URL}/${IMAGE}" />
@@ -114,6 +107,7 @@ function getResponse(type: ResponseType) {
     ${
       shouldRetry
         ? `<meta property="fc:frame:button:1" content="Try again" />`
+        // pass next pair here
         : ""
     }
   </head></html>`);
