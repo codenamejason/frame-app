@@ -1,9 +1,10 @@
 import { PairsType } from "@/app/types";
 import { IPairType } from "@/app/types/Pair";
-import { axiosInstance } from "./axiosInstance";
+import { seedDb } from "@/data/seed";
 
 export async function fetchPairs(cid?: string) {
   try {
+    await seedDb();
     const pairs: any[] = [];
 
     console.log(pairs);
@@ -66,17 +67,3 @@ export async function voteProjects({
 //   // return data
 // }
 
-export async function getCollection(id: number): Promise<IPairType> {
-  const { data } = await axiosInstance.get(`/collection/${id}`);
-  return data.collection;
-}
-
-export async function getProject(id: number): Promise<IPairType> {
-  const { data } = await axiosInstance.get(`/project/${id}`);
-  return data.project;
-}
-
-export async function finishCollections(id: number) {
-  const { data } = await axiosInstance.post(`/flow/finish`, { cid: id });
-  return data;
-}
