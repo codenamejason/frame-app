@@ -1,7 +1,11 @@
 import { ResponseType } from "@/app/types";
 import { SITE_URL } from "@/config";
 // import { kv } from '@vercel/kv';
-import { getFrameHtmlResponse } from "@coinbase/onchainkit";
+import {
+  FrameRequest,
+  getFrameHtmlResponse,
+  getFrameMessage,
+} from "@coinbase/onchainkit";
 import { NextRequest, NextResponse } from "next/server";
 import { Address } from "viem";
 
@@ -12,61 +16,94 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest): Promise<Response> {
   try {
-    const body: { trustedData?: { messageBytes?: string } } = await req.json();
+    const body: FrameRequest = await req.json();
+    console.log("BODY", body);
 
-    // Check if frame request is valid
-    const status = await validateFrameRequest(body.trustedData?.messageBytes);
+    const { isValid, message } = await getFrameMessage(body, {
+      neynarApiKey: NEYNAR_API_KEY,
+    });
 
-    if (!status?.valid) {
-      console.error(status);
+    if (!isValid) {
+      console.error(message);
       throw new Error("Invalid frame request");
     }
 
-    // Check if user has an address connected
-    const address: Address | undefined =
-      status?.action?.interactor?.verifications?.[0];
-
-    if (!address) {
-      return getResponse(ResponseType.NO_ADDRESS);
+    if (message.button === 1) {
+      return getResponse(ResponseType.NEXT_PAIR);
     }
 
-    return getResponse(ResponseType.NEXT_PAIR);
+    console.log("MESSAGE", { isValid, message });
+
+    return getResponse(ResponseType.DONE);
   } catch (error) {
     console.error(error);
     return getResponse(ResponseType.ERROR);
   }
 }
 
-function getResponse(type: ResponseType) {
+// add pariwise functions here to pair up the next set of projects
+
+// merge the images of the two projects into one image
+async function getPairImage() {
+  const image1 = "/status/ty-for-voting.webp";
+  const image2 = "/Example1.webp";
+
+  // show the two images side by side
+
+  return image2;
+}
+
+async function getResponse(type: ResponseType) {
+  console.log("response type from frame", type);
+
+  const pairImage = await getPairImage();
   const IMAGE = {
-    [ResponseType.SUCCESS]: "status/ty-for-voting.webp",
-    [ResponseType.NO_ADDRESS]: "status/no-address.png",
-    [ResponseType.ERROR]: "status/error.png",
-    [ResponseType.NEXT_PAIR]: "/Example1.webp",
+    [ResponseType.SUCCESS]: "/status/ty-for-voting.webp",
+    [ResponseType.NO_ADDRESS]: "/status/no-address.png",
+    [ResponseType.ERROR]: "/status/error.png",
+    [ResponseType.VOTE_AGAIN]: "/status/vote-again.webp",
+    [ResponseType.NEXT_PAIR]: pairImage,
+    [ResponseType.DONE]: "/status/ty-for-voting.webp",
   }[type];
+  const ROUTE = {
+    [ResponseType.SUCCESS]: "/api/thanks",
+    [ResponseType.NO_ADDRESS]: "/api/frame",
+    [ResponseType.ERROR]: "/api/frame",
+    [ResponseType.VOTE_AGAIN]: "/api/next",
+    [ResponseType.NEXT_PAIR]: "/api/next",
+    [ResponseType.DONE]: "/api/thanks",
+  }[type];
+
+  const isDone = type === ResponseType.DONE;
+
   const shouldRetry =
     type === ResponseType.ERROR || type === ResponseType.NO_ADDRESS;
   if (!shouldRetry) {
-    return new NextResponse(
-      getFrameHtmlResponse({
-        buttons: [
-          {
-            label: "Left",
-          },
-          {
-            label: "Right",
-          },
-          {
-            label: "Abstain",
-          },
-          {
-            label: "I'm Done",
-          },
-        ],
-        image: `${SITE_URL}${IMAGE}`,
-        post_url: `${SITE_URL}/api/vote`,
-      })
-    );
+    if (isDone) {
+      return new NextResponse(
+        getFrameHtmlResponse({
+          image: `${SITE_URL}${IMAGE}`,
+        })
+      );
+    } else {
+      return new NextResponse(
+        getFrameHtmlResponse({
+          buttons: [
+            {
+              label: "Left",
+            },
+            {
+              label: "Right",
+            },
+            {
+              label: "Abstain",
+            },
+          ],
+          image: `${SITE_URL}${IMAGE}`,
+          post_url: `${SITE_URL}${ROUTE}`,
+        })
+      );
+    }
   } else {
     return new NextResponse(
       getFrameHtmlResponse({
@@ -82,24 +119,24 @@ function getResponse(type: ResponseType) {
   }
 }
 
-async function validateFrameRequest(data: string | undefined) {
-  if (!NEYNAR_API_KEY) throw new Error("NEYNAR_API_KEY is not set");
-  if (!data) throw new Error("No data provided");
+// async function validateFrameRequest(data: string | undefined) {
+//   if (!NEYNAR_API_KEY) throw new Error("NEYNAR_API_KEY is not set");
+//   if (!data) throw new Error("No data provided");
 
-  const options = {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      api_key: NEYNAR_API_KEY,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({ message_bytes_in_hex: data }),
-  };
+//   const options = {
+//     method: "POST",
+//     headers: {
+//       accept: "application/json",
+//       api_key: NEYNAR_API_KEY,
+//       "content-type": "application/json",
+//     },
+//     body: JSON.stringify({ message_bytes_in_hex: data }),
+//   };
 
-  return await fetch(
-    "https://api.neynar.com/v2/farcaster/frame/validate",
-    options
-  )
-    .then((response) => response.json())
-    .catch((err) => console.error(err));
-}
+//   return await fetch(
+//     "https://api.neynar.com/v2/farcaster/frame/validate",
+//     options
+//   )
+//     .then((response) => response.json())
+//     .catch((err) => console.error(err));
+// }

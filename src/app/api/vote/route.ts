@@ -1,6 +1,10 @@
 import { ResponseType } from "@/app/types";
 import { SITE_URL } from "@/config";
-import { getFrameHtmlResponse } from "@coinbase/onchainkit";
+import {
+  FrameRequest,
+  getFrameHtmlResponse,
+  getFrameMessage,
+} from "@coinbase/onchainkit";
 import { NextRequest, NextResponse } from "next/server";
 import { Address } from "viem";
 
@@ -10,22 +14,21 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest): Promise<Response> {
   try {
-    const body: { trustedData?: { messageBytes?: string } } = await req.json();
+    const body: FrameRequest = await req.json();
     console.log("BODY", body);
 
-    // Check if frame request is valid
-    const status = await validateFrameRequest(body.trustedData?.messageBytes);
+    const { isValid, message } = await getFrameMessage(body, {
+      neynarApiKey: NEYNAR_API_KEY,
+    });
 
-    // Check if user has an address connected
-    const address: Address | undefined =
-      status?.action?.interactor?.verifications?.[0];
-    console.log("ADDRESS", address);
-
-    if (!address) {
-      return getResponse(ResponseType.NO_ADDRESS);
+    if (!isValid) {
+      console.error(message);
+      throw new Error("Invalid frame request");
     }
 
-    return getResponse(ResponseType.NEXT_PAIR);
+    console.log("MESSAGE", { isValid, message });
+
+    return getResponse(ResponseType.VOTE_AGAIN);
   } catch (error) {
     console.error(error);
     return getResponse(ResponseType.ERROR);
@@ -33,11 +36,23 @@ export async function POST(req: NextRequest): Promise<Response> {
 }
 
 function getResponse(type: ResponseType) {
+  console.log("response type from vote", type);
+
   const IMAGE = {
-    [ResponseType.SUCCESS]: "status/vote-again.webp",
+    [ResponseType.SUCCESS]: "status/ty-for-voting.webp",
     [ResponseType.NO_ADDRESS]: "status/no-address.png",
     [ResponseType.ERROR]: "status/error.png",
+    [ResponseType.VOTE_AGAIN]: "status/vote-again.webp",
     [ResponseType.NEXT_PAIR]: "/Example1.webp",
+    [ResponseType.DONE]: "status/ty-for-voting.webp",
+  }[type];
+  const ROUTE = {
+    [ResponseType.SUCCESS]: "api/ty-for-voting.webp",
+    [ResponseType.NO_ADDRESS]: "api/frame",
+    [ResponseType.ERROR]: "api/frame",
+    [ResponseType.VOTE_AGAIN]: "api/next",
+    [ResponseType.NEXT_PAIR]: "api/next",
+    [ResponseType.DONE]: "api/thanks",
   }[type];
   // const shouldRetry = type === ResponseType.ERROR;
   return new NextResponse(
@@ -56,7 +71,7 @@ function getResponse(type: ResponseType) {
         src: `${SITE_URL}/${IMAGE}`,
         aspectRatio: "1:1",
       },
-      post_url: `${SITE_URL}/api/next`,
+      post_url: `${SITE_URL}/${ROUTE}`,
     })
   );
 }

@@ -14,7 +14,9 @@ export enum VOTES {
 export enum ResponseType {
   SUCCESS,
   // RECAST,
+  VOTE_AGAIN,
   NEXT_PAIR,
   NO_ADDRESS,
   ERROR,
+  DONE,
 }

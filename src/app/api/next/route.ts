@@ -1,6 +1,10 @@
 import { ResponseType } from "@/app/types";
 import { CHAIN, SITE_URL } from "@/config";
-import { getFrameHtmlResponse } from "@coinbase/onchainkit";
+import {
+  FrameRequest,
+  getFrameHtmlResponse,
+  getFrameMessage,
+} from "@coinbase/onchainkit";
 import image from "next/image";
 // import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from "next/server";
@@ -38,22 +42,16 @@ export async function POST(req: NextRequest): Promise<Response> {
     // if (!NEXT_PUBLIC_PRIVATE_KEY)
     //   throw new Error("NEXT_PUBLIC_PRIVATE_KEY is not set");
 
-    const body: { trustedData?: { messageBytes?: string } } = await req.json();
+    const body: FrameRequest = await req.json();
+    console.log("BODY", body);
 
-    // Check if frame request is valid
-    const status = await validateFrameRequest(body.trustedData?.messageBytes);
+    const { isValid, message } = await getFrameMessage(body, {
+      neynarApiKey: NEYNAR_API_KEY,
+    });
 
-    if (!status?.valid) {
-      console.error(status);
+    if (!isValid) {
+      console.error(message);
       throw new Error("Invalid frame request");
-    }
-
-    // Check if user has an address connected
-    const address: Address | undefined =
-      status?.action?.interactor?.verifications?.[0];
-
-    if (!address) {
-      return getResponse(ResponseType.NO_ADDRESS);
     }
 
     // Set up the tranaction to cast vote
@@ -77,6 +75,10 @@ export async function POST(req: NextRequest): Promise<Response> {
     //   await kv.set(`tx:${address}`, hash);
     // }
 
+    if (message.button === 4) {
+      return getResponse(ResponseType.DONE);
+    }
+
     return getResponse(ResponseType.NEXT_PAIR);
   } catch (error) {
     console.error(error);
@@ -84,33 +86,65 @@ export async function POST(req: NextRequest): Promise<Response> {
   }
 }
 
-function getResponse(type: ResponseType) {
+// add pariwise functions here to pair up the next set of projects
+
+// merge the images of the two projects into one image
+async function getPairImage() {
+  const image1 = "/status/ty-for-voting.webp";
+  const image2 = "/Example1.webp";
+
+  // show the two images side by side
+
+  return image2;
+}
+
+async function getResponse(type: ResponseType) {
+  const pairImage = await getPairImage();
   const IMAGE = {
-    [ResponseType.SUCCESS]: "status/ty-for-voting.webp",
-    [ResponseType.NO_ADDRESS]: "status/no-address.png",
-    [ResponseType.ERROR]: "status/error.png",
-    [ResponseType.NEXT_PAIR]: "/Example1.webp",
+    [ResponseType.SUCCESS]: "/status/ty-for-voting.webp",
+    [ResponseType.NO_ADDRESS]: "/status/no-address.png",
+    [ResponseType.ERROR]: "/status/error.png",
+    [ResponseType.VOTE_AGAIN]: "/status/vote-again.webp",
+    [ResponseType.NEXT_PAIR]: pairImage,
+    [ResponseType.DONE]: "/status/ty-for-voting.webp",
   }[type];
-  return new NextResponse(
-    getFrameHtmlResponse({
-      buttons: [
-        {
-          label: "Left",
-        },
-        {
-          label: "Right",
-        },
-        {
-          label: "Abstain",
-        },
-        {
-          label: "I'm Done",
-        },
-      ],
-      image: `${SITE_URL}${IMAGE}`,
-      post_url: `${SITE_URL}/api/vote`,
-    })
-  );
+  const ROUTE = {
+    [ResponseType.SUCCESS]: "/api/thanks",
+    [ResponseType.NO_ADDRESS]: "/api/frame",
+    [ResponseType.ERROR]: "/api/frame",
+    [ResponseType.VOTE_AGAIN]: "/api/next",
+    [ResponseType.NEXT_PAIR]: "/api/next",
+    [ResponseType.DONE]: "/api/thanks",
+  }[type];
+
+  if (type === ResponseType.NEXT_PAIR) {
+    return new NextResponse(
+      getFrameHtmlResponse({
+        buttons: [
+          {
+            label: "Left",
+          },
+          {
+            label: "Right",
+          },
+          {
+            label: "Abstain",
+          },
+          {
+            label: "I'm Done",
+          },
+        ],
+        image: `${SITE_URL}${IMAGE}`,
+        post_url: `${SITE_URL}${ROUTE}`,
+      })
+    );
+  } else {
+    return new NextResponse(
+      getFrameHtmlResponse({
+        image: `${SITE_URL}${IMAGE}`,
+      })
+    );
+  }
 }
 
 async function validateFrameRequest(data: string | undefined) {
