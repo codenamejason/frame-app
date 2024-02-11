@@ -3,7 +3,7 @@
 //   | "Finished"
 //   | "Pending";
 
-export interface PairType {
+export interface IPairType {
   id: number;
   name: string;
   description: string;

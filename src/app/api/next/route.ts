@@ -141,6 +141,11 @@ async function getResponse(type: ResponseType) {
   } else {
     return new NextResponse(
       getFrameHtmlResponse({
+        buttons: [
+          {
+            label: "Share Frame",
+          },
+        ],
         image: `${SITE_URL}${IMAGE}`,
       })
     );

@@ -11,7 +11,7 @@ export const CONTRACT_ADDRESS: `0x${string}` = "0x";
 export const HOME_PAGE_FRAME_METADATA = getFrameMetadata({
   buttons: [
     {
-      label: "Vote",
+      label: "Vote on Projects",
       action: "post",
     },
   ],

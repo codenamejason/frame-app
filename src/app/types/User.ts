@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  fid: number;
   address: string;
   isBadgeholder: boolean;
 }

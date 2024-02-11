@@ -1,16 +1,24 @@
 import { PairsType } from "@/app/types";
-import { PairType } from "@/app/types/Pair";
+import { IPairType } from "@/app/types/Pair";
 import { axiosInstance } from "./axiosInstance";
 
 export async function fetchPairs(cid?: string) {
-  const url = "/api/pairs";
-  return axiosInstance
-    .get<PairsType>(url, {
-      params: {
-        cid,
-      },
-    })
-    .then((res) => res.data);
+  try {
+    const pairs: any[] = [];
+
+    console.log(pairs);
+  } catch (error) {
+    console.error(error);
+  }
+
+  // const url = "/api/pairs";
+  // return axiosInstance
+  //   .get<PairsType>(url, {
+  //     params: {
+  //       cid,
+  //     },
+  //   })
+  //   .then((res) => res.data);
 }
 
 export async function voteProjects({
@@ -22,13 +30,14 @@ export async function voteProjects({
   id2: number;
   pickedId: number | null;
 }) {
-  return axiosInstance
-    .post("/api/vote", {
-      project1Id: id1,
-      project2Id: id2,
-      pickedId,
-    })
-    .then((res) => res.data);
+  // const myPairVote =
+  // return axiosInstance
+  //   .post("/api/vote", {
+  //     project1Id: id1,
+  //     project2Id: id2,
+  //     pickedId,
+  //   })
+  //   .then((res) => res.data);
 }
 
 // export async function getRankings(cid?: string) {
@@ -57,12 +66,12 @@ export async function voteProjects({
 //   // return data
 // }
 
-export async function getCollection(id: number): Promise<PairType> {
+export async function getCollection(id: number): Promise<IPairType> {
   const { data } = await axiosInstance.get(`/collection/${id}`);
   return data.collection;
 }
 
-export async function getProject(id: number): Promise<PairType> {
+export async function getProject(id: number): Promise<IPairType> {
   const { data } = await axiosInstance.get(`/project/${id}`);
   return data.project;
 }

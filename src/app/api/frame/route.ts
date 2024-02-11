@@ -1,4 +1,5 @@
 import { ResponseType } from "@/app/types";
+import { fetchPairs } from "@/app/utils/poller";
 import { SITE_URL } from "@/config";
 // import { kv } from '@vercel/kv';
 import {
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest): Promise<Response> {
 }
 
 // add pariwise functions here to pair up the next set of projects
+const initialPairs = fetchPairs();
 
 // merge the images of the two projects into one image
 async function getPairImage() {
