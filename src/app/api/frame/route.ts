@@ -35,15 +35,15 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     console.log("MESSAGE", { isValid, message });
 
+    // add pariwise functions here to pair up the next set of projects
+    const initialPairs = fetchPairs();
+
     return getResponse(ResponseType.DONE);
   } catch (error) {
     console.error(error);
     return getResponse(ResponseType.ERROR);
   }
 }
-
-// add pariwise functions here to pair up the next set of projects
-const initialPairs = fetchPairs();
 
 // merge the images of the two projects into one image
 async function getPairImage() {

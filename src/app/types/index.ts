@@ -15,6 +15,11 @@ export enum ResponseType {
   DONE,
 }
 
+export enum Status {
+  ACTIVE,
+  INACTIVE,
+}
+
 export type TRanking = {
   id: number;
   rankGiven: number;
@@ -29,12 +34,11 @@ export interface IProject {
   name?: string;
   description?: string;
   address?: `0x${string}`;
-  hasRanking?: boolean;
   type: ProjectType;
   createdAt: Date;
   updatedAt?: Date;
   metadata?: TMetadata | undefined;
-  parentId?: number;
+  status?: Status;
 }
 
 export type TMetadata = {

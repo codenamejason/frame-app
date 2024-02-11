@@ -55,7 +55,9 @@ export async function POST(req: NextRequest): Promise<Response> {
       throw new Error("Invalid frame request");
     }
 
-    // await voteProjects({ pairId: 2, selected: 4 });
+    const vote = await voteProjects({ pairId: 2, selected: 4 });
+
+    console.log("VOTE", vote);
 
     // Set up the tranaction to cast vote
     // const { request } = await publicClient.simulateContract({

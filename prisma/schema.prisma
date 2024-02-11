@@ -16,7 +16,6 @@ model User {
   address   String?
   id        Int      @id @default(autoincrement())
 
-  @@unique([id, email, address])
   @@index([id, address])
 }
 
@@ -42,23 +41,21 @@ model Project {
   description String?   @default("No description has been provided yet.")
   status      Status?   @default(ACTIVE)
   type        Type?     @default(INDIVIDUAL)
-  address     String?   @default("The project has not connected an address yet.")
+  address     String?
   id          Int       @id @default(autoincrement())
   updatedAt   DateTime  @default(now())
   metadataId  Int?
   metadata    Metadata? @relation(fields: [metadataId], references: [id])
 
-  @@unique([address, id])
   @@index([id, address])
 }
 
 model Vote {
-  id           Int        @id @default(autoincrement())
-  createdAt    DateTime   @default(now())
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
   pickedPairId Int
   userId       Int
   pickedId     Int
-  pickedPair   PickedPair @relation(fields: [pickedPairId], references: [id])
 
   @@index([id, pickedPairId])
 }
@@ -68,7 +65,6 @@ model PickedPair {
   pickedAt       DateTime  @default(now())
   projectPairIds Int[]
   rankings       Ranking[]
-  Vote           Vote[]
 
   @@index([id, projectPairIds])
 }

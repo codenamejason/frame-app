@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export async function fetchPairs(cid?: string) {
   let pairs: IPairType[] = [];
   try {
-    await seedDb();
+    // await seedDb();
     const pairs: any[] = [];
 
     console.log(pairs);
@@ -34,6 +34,15 @@ export async function voteProjects({
   pairId: number;
   selected: number;
 }) {
+  const pickedPair = await prisma.pickedPair.create({
+    data: {
+      pickedAt: new Date(),
+      projectPairIds: [1, 2],
+    },
+  });
+
+  console.log(pickedPair);
+
   const myPairVote = await prisma.vote.create({
     data: {
       userId: 1,

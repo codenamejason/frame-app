@@ -34,178 +34,70 @@ export async function seedDb() {
   //   },
   // });
 
-  await prisma.project.create({
-    data: {
-      name: "Project 1",
-      description: "Project 1 description",
-      address: "0x123",
-      type: "INDIVIDUAL",
-      metadata: {
-        create: {
-          protocol: 1,
-          pointer: "0x123",
-        },
+  await prisma.project.createMany({
+    data: [
+      {
+        name: "Project 1",
+        description: "Project 1 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
       },
-    },
+      {
+        name: "Project 2",
+        description: "Project 2 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 3",
+        description: "Project 3 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 4",
+        description: "Project 4 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 5",
+        description: "Project 5 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 6",
+        description: "Project 6 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 7",
+        description: "Project 7 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 8",
+        description: "Project 8 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 9",
+        description: "Project 9 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+      {
+        name: "Project 10",
+        description: "Project 10 description",
+        status: "ACTIVE",
+        type: "INDIVIDUAL",
+      },
+    ],
   });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 2",
-  //     description: "Project 2 description",
-  //     address: "0x321",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 3",
-  //     description: "Project 3 description",
-  //     address: "0x456",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 4",
-  //     description: "Project 4 description",
-  //     address: "0x654",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 5",
-  //     description: "Project 5 description",
-  //     address: "0x987",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 6",
-  //     description: "Project 6 description",
-  //     address: "0x678",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 7",
-  //     description: "Project 7 description",
-  //     address: "0x789",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 8",
-  //     description: "Project 8 description",
-  //     address: "0x890",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 9",
-  //     description: "Project 9 description",
-  //     address: "0x098",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.project.create({
-  //   data: {
-  //     name: "Project 10",
-  //     description: "Project 10 description",
-  //     address: "0x890",
-  //     type: "INDIVIDUAL",
-  //     metadata: {
-  //       create: {
-  //         protocol: 1,
-  //         pointer: "0x123",
-  //       },
-  //     },
-  //     hasRanking: false,
-  //   },
-  // });
-
-  // await prisma.pickedPair.create({
-  //   data: {
-  //     pickedAt: new Date(),
-  //     projectPairIds: {
-  //       set: [1, 2],
-  //     },
-  //     rankings: {
-  //       create: {
-  //         rankGiven: 1 + Math.floor(Math.random() * 10),
-  //         createdAt: new Date(),
-  //       },
-  //     },
-  //   },
-  // });
 }
 
 async function main() {
