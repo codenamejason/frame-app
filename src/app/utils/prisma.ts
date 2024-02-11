@@ -7,7 +7,7 @@ async function seedDb() {
     data: {
       name: "Jax",
       email: "jax@jax.com",
-      id: "0x123",
+      address: "0x123",
       createdAt: new Date(),
       updatedAt: new Date(),
     },

@@ -1,4 +1,5 @@
 import { ResponseType } from "@/app/types";
+import { voteProjects } from "@/app/utils/poller";
 import { CHAIN, SITE_URL } from "@/config";
 import {
   FrameRequest,
@@ -53,6 +54,8 @@ export async function POST(req: NextRequest): Promise<Response> {
       console.error(message);
       throw new Error("Invalid frame request");
     }
+
+    // await voteProjects({ pairId: 2, selected: 4 });
 
     // Set up the tranaction to cast vote
     // const { request } = await publicClient.simulateContract({

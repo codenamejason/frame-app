@@ -10,6 +10,8 @@ export interface IPairType {
   avatarUrl: string;
 }
 
+
+
 // export interface PairType {
 //   id: number;
 //   name: string;

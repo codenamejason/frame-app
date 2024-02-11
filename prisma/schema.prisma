@@ -1,60 +1,84 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model User {
-  id          String       @id
-  email       String       @unique
-  name        String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  pickedPairs PickedPair[]
+  email     String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  address   String?
+  id        Int      @id @default(autoincrement())
+
+  @@unique([id, email, address])
+  @@index([id, address])
 }
 
 model Ranking {
-  id        Int       @id
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  projects  Project[]
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  rankGiven    Int
+  pickedPairId Int?
+  pickedPair   PickedPair? @relation(fields: [pickedPairId], references: [id])
+
+  @@index([id])
 }
 
 model Metadata {
-  id       Int       @id
   protocol Int
   pointer  String
+  id       Int       @id @default(autoincrement())
   project  Project[]
 }
 
 model Project {
-  id          Int       @id
   name        String
-  description String?
-  metadata    Metadata? @relation(fields: [metadataId], references: [id])
+  description String?   @default("No description has been provided yet.")
+  status      Status?   @default(ACTIVE)
+  type        Type?     @default(INDIVIDUAL)
+  address     String?   @default("The project has not connected an address yet.")
+  id          Int       @id @default(autoincrement())
+  updatedAt   DateTime  @default(now())
   metadataId  Int?
-  ranking     Ranking?  @relation(fields: [rankingId], references: [id])
-  rankingId   Int?
-  progress    Int?
-  status      Int?
-  hasRanking  Boolean?
-  type        Int?
-  pickedPair   PickedPair? @relation(fields: [pickedPairId], references: [id])
-  pickedPairId Int?
+  metadata    Metadata? @relation(fields: [metadataId], references: [id])
+
+  @@unique([address, id])
+  @@index([id, address])
+}
+
+model Vote {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  pickedPairId Int
+  userId       Int
+  pickedId     Int
+  pickedPair   PickedPair @relation(fields: [pickedPairId], references: [id])
+
+  @@index([id, pickedPairId])
 }
 
 model PickedPair {
-  id        Int       @id
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  pairs     Project[]
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?
+  id             Int       @id @default(autoincrement())
+  pickedAt       DateTime  @default(now())
+  projectPairIds Int[]
+  rankings       Ranking[]
+  Vote           Vote[]
+
+  @@index([id, projectPairIds])
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum Type {
+  COLLECTION
+  INDIVIDUAL
 }
